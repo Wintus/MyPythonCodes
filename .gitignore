@@ -43,5 +43,5 @@ Temporary Items
 .apdisk
 
 # Directories
-.cache
-__pycache__
+.cache/
+__pycache__/
