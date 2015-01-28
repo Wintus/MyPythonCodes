@@ -32,12 +32,38 @@ def main():
     fltTotal = fltSubtotal + fltTax + fltShipping
 
     #Display the result
-    print()
-    print("You have purchased: {}, {} and {}.".format(*strDescription))
-    print("The subtotal is ${}.".format(fltSubtotal))
-    print("The Shipping and Handling costs are ${}.".format(fltShipping))
-    print("The Tax is ${:.2f}.".format(fltTax))
-    print("The Total is ${:.2f}.".format(fltTotal))
+    try:
+        print()
+        print("You have purchased: {}, {} and {}.".format(*strDescription))
+        print("The subtotal is ${}.".format(fltSubtotal))
+        print("The Shipping and Handling costs are ${}.".format(fltShipping))
+        print("The Tax is ${:.2f}.".format(fltTax))
+        print("The Total is ${:.2f}.".format(fltTotal))
+    except:
+        print("Something goes wrong.")
 
 main()
 
+#Sample inputs
+##Please enter the item description: a
+##PLease enter the price: $1
+##Please enter the quantity: 2
+##Please enter the weight per item(lbs): 3
+##Please enter the item description: b
+##PLease enter the price: $4
+##Please enter the quantity: 5
+##Please enter the weight per item(lbs): 6
+##Please enter the item description: c
+##PLease enter the price: $7
+##Please enter the quantity: 8
+##Please enter the weight per item(lbs): 9
+
+#Sample outputs
+##
+##You have purchased: a, b and c.
+##The subtotal is $78.0.
+##The Shipping and Handling costs are $32.0.
+##The Tax is $6.63.
+##The Total is $116.63.
+
+#Output check by calculator -- Yuya Maemichi
