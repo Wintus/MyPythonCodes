@@ -45,3 +45,6 @@ Temporary Items
 # Directories
 .cache/
 __pycache__/
+
+# Backups
+*.bak
