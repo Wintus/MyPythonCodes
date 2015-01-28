@@ -8,6 +8,7 @@ def main():
 
     #Initialize accumulators
     strDescription = []
+##    strDescription = "" # string accumulator version
     fltSubtotal = 0.0
     fltShipping = 0.0
 
@@ -16,15 +17,19 @@ def main():
         for i in range(3):
             #Get user inputs
            strDescription += [str(input("Please enter the item description: "))]
+##           strName = str(input("Please enter the item descirption: "))
            fltPrice = float(input("PLease enter the price: $"))
            intQuantity = int(input("Please enter the quantity: "))
            fltWeight = float(input("Please enter the weight per item(lbs): "))
 
            #Accumulating
+##           strDescription += strName + ' ' #string accumulator version
            fltSubtotal += fltPrice * intQuantity
            fltShipping += .25 * fltWeight * intQuantity
     except ValueError:
+        #Check the wrong input like casting a string into int() or float()
         print("ERROR: Wrong Inputs captured")
+        return '__ERROR__'
 
     #Process the rest of values
     fltShipping += 5 #Handling charge
@@ -34,13 +39,20 @@ def main():
     #Display the result
     try:
         print()
+        #I couldn't make this out without using *. -- Yuya
+        #But I think it's a tiny difference.
+        #I also have a string version below.
         print("You have purchased: {}, {} and {}.".format(*strDescription))
+##        print("You have purchased:", strDescription)
+        
         print("The subtotal is ${}.".format(fltSubtotal))
-        print("The Shipping and Handling costs are ${}.".format(fltShipping))
+        print("The Shipping & Handling is ${}.".format(fltShipping))
         print("The Tax is ${:.2f}.".format(fltTax))
         print("The Total is ${:.2f}.".format(fltTotal))
     except:
-        print("Something goes wrong.")
+        #This program should be quited before getting here by former return.
+        print("UNKNOWN ERROR: Something goes wrong.")
+        return '__ERROR__'
 
 main()
 
