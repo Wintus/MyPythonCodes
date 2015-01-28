@@ -5,32 +5,28 @@
 
 def main():
     strDescription = []
-    intSubtotal = 0
-##    intTotalWeight = 0
-    intShipping = 0
-    intTax = 0
+    fltSubtotal = 0.0
+    fltShipping = 0.0
     
     for i in range(3):
-       strPurchase = str(input("Please enter the item description: "))
-       intPrice = int(input("PLease enter the price: $"))
+       strDescription += [str(input("Please enter the item description: "))]
+       fltPrice = float(input("PLease enter the price: $"))
        intQuantity = int(input("Please enter the quantity: "))
-       intInitialWeight = int(input("Please enter the weight per item(lbs): "))
+       fltWeight = float(input("Please enter the weight per item(lbs): "))
 
-       strDescription += [strPurchase]
-##       intTotalWeight += intInitialWeight
-       intSubtotal += (intPrice * intQuantity)
-       intShipping += (.25 * (intInitialWeight * intQuantity))
-       intTax += .085 * (intPrice * intQuantity)
+       fltSubtotal += fltPrice * intQuantity
+       fltShipping += .25 * fltWeight * intQuantity
 
-    intShipping += 5 # Handling Cost
-    intTotal = intSubtotal + intShipping + intTax
+    fltShipping += 5 #Handling charge
+    fltTax = .085 * fltSubtotal
+    fltTotal = fltSubtotal + fltTax + fltShipping
 
     print()
-    print("You have purchased: {0}, {1} and {2}".format(*strDescription))
-    print("The subtotal is ${}.".format(intSubtotal))
-    print("The Shipping and Handling costs are ${}.".format(intShipping))
-    print("The Tax is ${0:0.2f}.".format(intTax))
-    print("The Total is ${0:0.2f}.".format(intTotal))
+    print("You have purchased: {}, {} and {}.".format(*strDescription))
+    print("The subtotal is ${}.".format(fltSubtotal))
+    print("The Shipping and Handling costs are ${}.".format(fltShipping))
+    print("The Tax is ${:.2f}.".format(fltTax))
+    print("The Total is ${:.2f}.".format(fltTotal))
 
 
 main()
