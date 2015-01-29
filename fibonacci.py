@@ -1,10 +1,22 @@
-'''Fibonacci generator'''
+'''Fibonacci iterator'''
 
-def fib(max):
-    a, b = 0, 1
-    while a < max:
-        yield a
-        a, b = b, a + b
+class Fib:
+    '''iterator that yields numbers in the Fibonacci sequence'''
+
+    def __init__(self, max):
+        self.max = max
+
+    def __iter__(self):
+        self.a = 0
+        self.b = 1
+        return self
+
+    def __next__(self):
+        fib = self.a
+        if fib > self.max:
+            raise StopIteration
+        self.a, self.b = self.b, self.a + self.b
+        return fib
 
 # Copyright (c) 2009, Mark Pilgrim, All rights reserved.
 # 
@@ -28,9 +40,3 @@ def fib(max):
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-def fib1(n):
-    a, b = 0, 1
-    for i in range(n):
-        yield a
-        a, b = b, a + b
