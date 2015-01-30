@@ -52,8 +52,10 @@ roman_numeral_pattern = re.compile('''
 
 def from_roman(s):
     '''conver Roman numeral to integer'''
+    if not s:
+        raise InvalidRomanNumeralError('Input can not be blank')
     if not roman_numeral_pattern.search(s):
-        raise InvalidRomanNumeralError("Invalid Roman numeral: {0}".format(s))
+        raise InvalidRomanNumeralError("Invalid Roman numeral: {}".format(s))
     
     result = 0
     index = 0
