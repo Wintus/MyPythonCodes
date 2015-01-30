@@ -5,7 +5,7 @@ experienced programmers.  Visit http://diveintopython3.org/ for the
 latest version.
 '''
 
-import roman1
+import roman2
 import unittest
 
 class KnownValues(unittest.TestCase):
@@ -69,8 +69,13 @@ class KnownValues(unittest.TestCase):
     def test_to_roman_known_values(self):
         '''to_roman should give known result with known input'''
         for integer, numeral in self.known_values:
-            result = roman1.to_roman(integer)
+            result = roman2.to_roman(integer)
             self.assertEqual(numeral, result)
+
+class ToRomanBadInput(unittest.TestCase):
+    def test_too_large(self):
+        '''to_roman should fail with large input'''
+        self.assertRaises(roman2.OutOfRangeError, roman2.to_roman, 4000)
 
 if __name__ == '__main__':
     unittest.main()

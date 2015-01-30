@@ -4,6 +4,8 @@ This program is part of 'Dive Into Python 3', a free Python book for
 experienced programmers.  Visit http://diveintopython3.org/ for the
 latest version.
 '''
+class OutOfRangeError(ValueError):
+    pass
 
 roman_numeral_map = (('M',  1000),
                      ('CM', 900),
@@ -21,13 +23,14 @@ roman_numeral_map = (('M',  1000),
 
 def to_roman(n):
     '''convert integer to Roman numeral'''
+    if n > 3999:
+        raise OutOfRangeError('number out of range (must be less than 4000)')
+
     result = ''
     for numeral, integer in roman_numeral_map:
         while n >= integer:
             result += numeral
             n -= integer
-            print("subtracting {0} from input, adding {1} to output"\
-                  .format(integer, numeral))
     return result
 
 # Copyright (c) 2009, Mark Pilgrim, All rights reserved.
