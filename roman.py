@@ -26,6 +26,8 @@ def to_roman(n):
         while n >= integer:
             result += numeral
             n -= integer
+            print("subtracting {0} from input, adding {1} to output"\
+                  .format(integer, numeral))
     return result
 
 # Copyright (c) 2009, Mark Pilgrim, All rights reserved.
