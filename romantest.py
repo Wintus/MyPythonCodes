@@ -1,11 +1,11 @@
-'''Unit test for roman1.py
+'''Unit test for roman5.py
 
 This program is part of 'Dive Into Python 3', a free Python book for
 experienced programmers.  Visit http://diveintopython3.org/ for the
 latest version.
 '''
 
-import roman4
+import roman5
 import unittest
 
 class KnownValues(unittest.TestCase):
@@ -69,25 +69,40 @@ class KnownValues(unittest.TestCase):
     def test_to_roman_known_values(self):
         '''to_roman should give known result with known input'''
         for integer, numeral in self.known_values:
-            result = roman4.to_roman(integer)
+            result = roman5.to_roman(integer)
             self.assertEqual(numeral, result)
+
+    def test_from_roman_known_values(self):
+        '''from_roman should give known result with known input'''
+        for integer, numeral in self.known_values:
+            result = roman5.from_roman(numeral)
+            self.assertEqual(integer, result)
 
 class ToRomanBadInput(unittest.TestCase):
     def test_too_large(self):
         '''to_roman should fail with large input'''
-        self.assertRaises(roman4.OutOfRangeError, roman4.to_roman, 4000)
+        self.assertRaises(roman5.OutOfRangeError, roman5.to_roman, 4000)
 
     def test_zero(self):
         '''to_roman should fail with 0 input'''
-        self.assertRaises(roman4.OutOfRangeError, roman4.to_roman, 0)
+        self.assertRaises(roman5.OutOfRangeError, roman5.to_roman, 0)
 
     def test_negative(self):
         '''to_roman should fail with negative input'''
-        self.assertRaises(roman4.OutOfRangeError, roman4.to_roman, -1)
+        self.assertRaises(roman5.OutOfRangeError, roman5.to_roman, -1)
 
     def test_non_integer(self):
         '''to_roman should fail with non-integer input'''
-        self.assertRaises(roman4.NotIntegerError, roman4.to_roman, 0.5)
+        self.assertRaises(roman5.NotIntegerError, roman5.to_roman, 0.5)
+
+class RoundtripCheck(unittest.TestCase):
+    def test_roundtrip(self):
+        '''form_roman(to_roman(n))==n for all n'''
+        for integer in range(1, 4000):
+            numeral = roman5.to_roman(integer)
+            result = roman5.from_roman(numeral)
+            self.assertEqual(integer, result)
+            
 
 if __name__ == '__main__':
     unittest.main()
