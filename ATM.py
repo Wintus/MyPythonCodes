@@ -7,10 +7,6 @@ class WrongOperation(ValueError): pass
 class Overdraft(Exception): pass
 class FinishTransaction(Exception): pass
 
-##class Transactions():
-##    def __init__(self, init_balance=0.0, init_charge=0.0):
-##        '''initialize'''
-
 class Account():
     '''bank account contains current balance and all histories of transactions'''
     modes = ('DEPOSIT', 'WITHDREWAL', 'SERVICE_CHARGE', 'END')
@@ -21,14 +17,6 @@ class Account():
         self.service_fee = 10.0
         
         self.transaction_history = []
-##        self.deposit_history = []
-##        self.withdrawal_history = []
-##        self.service_charge_history = []
-
-##        self.histories = {'DEPOSIT':self.deposit_history, \
-##                          'WITHDRAWAL':self.withdrawal_history, \
-##                          'SERVICE_CHARGE':self.service_charge_history, \
-##                          'TOTAL':self.transaction_history}
 
         self.summary = {'balance':self.balance, 'charge':self.charge, \
                         'DEPOSIT':{'number':0, 'amount':0.0}, \
@@ -44,13 +32,11 @@ class Account():
         """update the transaction history
 
     mode = 'DEPOSIT' | 'WITHDRAWAL' | 'SERVICE_CHARGE'"""
-        if self.balance < 0.0:
-            raise NegativeBalance
+##        if self.balance < 0.0:
+##            raise NegativeBalance
 
         item = (mode, amount)
         self.transaction_history.append(item)
-##        self.histories[mode].append(amount)
-##        self.histories['TOTAL'].append(item)
         self.summary[mode]['number'] += 1
         self.summary[mode]['amount'] += amount
 
@@ -64,42 +50,24 @@ class Account():
 
     def deposit(self, amount):
         '''make a deposit'''
-        try:
-            if float(amount) < 0.0:
+        if float(amount) < 0.0:
                 raise NegativeDeposit('Invalid Negative Deposit')
-            else:
-                self.balance += float(amount)
-                self.update('DEPOSIT',amount)
-        except ValueError:
-            raise ValueError('Not a number')
-
+        else:
+            self.balance += float(amount)
+            self.update('DEPOSIT',amount)
+        
     def withdrawal(self, amount):
         '''make a withdrawal'''
-        try:
-            if float(amount) < 0.0:
-                raise NegativeWihtdrawal('Invelid Negatilve Withdrawal')
-            elif float(amount) > self.balance: #overdraft
-                self.balance -= self.service_fee
-                update('SERVICE_CHARGE', -self.service_fee)
-                raise Overdraft('Insufficient balance & service fee charged')
-            else:
-                self.balance -= amount
-                update('WITHDRAWAL', amount)
-        except ValueError:
-            raise ValueError('Not a number')
-            
-
-##    #iterator
-##
-##    def __iter__():
-##        self.count = 0
-##        return self
-##
-##    def __next__():
-##        last = transaction_history[self.count]
-##        self.count += 1
-##        return last
-
+        if float(amount) < 0.0:
+            raise NegativeWithdrawal('Invelid Negatilve Withdrawal')
+        elif float(amount) > self.balance: #overdraft
+            self.balance -= self.service_fee
+            self.update('SERVICE_CHARGE', -self.service_fee)
+            raise Overdraft('Insufficient balance & service fee charged')
+        else:
+            self.balance -= amount
+            self.update('WITHDRAWAL', amount)
+                 
 def teller(account, mode='END', amount=0.0): #Process
     '''deals transactions of given mode and amount
 
