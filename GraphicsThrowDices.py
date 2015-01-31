@@ -5,6 +5,93 @@
 
 from graphics import *
 import random
+##from itertools import product
+
+class Square(Rectangle):
+    '''a square'''
+    def __init__(self, center_point, size):
+        self.center = center_point
+        self.size   = size
+        half = size / 2
+        p1 = center_point.clone()
+        p1._move(-half, -half)
+        p2 = center_point.clone()
+        p2._move(half, half)
+        Rectangle.__init__(self, p1, p2)
+
+    def getCenter(self):
+        return self.center
+
+    def getSize(self):
+        return self.size
+        
+class Dice(Square, Dot):
+    '''a dice object'''
+    
+##    pointss     = [[center_point.clone() for m in range(n - 1)] \
+##                   for n in range(1, 7)]
+    pointss     = []
+    for n in range(6):
+        points = []
+        for m in range(n + 1):
+            points.append(center_point.clone())
+        pointss.append(points)
+    # == [[Point], [Point, Point(], ... , [..., Point]]
+    for i in range(1, 6): # topLeft & bottomRight of 2, 3, 4, 5, 6
+        pointss[i][0].move(-space, -space)
+        pointss[i][1].move(space, space)
+    for i in range(3, 6): # bottomLeft & topRight of 4, 5, 6
+        pointss[i][2].move(-space, space)
+        pointss[i][3].move(space, -space)
+    # the center two of 6
+    pointss[5][4].move(-space, 0)
+    pointss[5][5].move(space, 0)
+##    print(list(map(lambda l: \
+##                   list(map(lambda p: (p.getX(), p.getY()), l)), \
+##                   pointss)))
+    
+    def __init__(self, center_point, size, number):
+        self.number = number
+        half    = size / 2
+        space   = size / 4
+        radius  = size / 10
+
+        # make a white square base
+        self.box = Square(center_point, size)
+        self.box.setFill("white")
+
+        # make dots
+##        self.dots   = tuple(range(6))
+        self.dots = []
+##        for n in range(6):
+        points = pointss[number]
+        self.dots = [Dot(p, radius) for p in points]
+##        self.dots.append(dots)
+##        for ds in self.dots:
+##            for d in ds:
+##                c = d.getCenter()
+##                print(c.x, c.y, d.getRadius(), end=", ")
+##            print()
+
+    def __call__(self, *n): # callable instance
+        '''_ -> throw, n -> show n'''
+        if not n: # [] == no argument
+            self = self.clone(random.randint(1, 6))
+        elif n[0]: # a number
+            self = self.clone(int(n[0]))
+        else:
+            raise ValueError("Invalid argument")
+
+    def clone(self, n=self.number):
+        other = Dice(self.center, self.size, n)
+        other.config = self.config.copy()
+        return other
+
+class Dot(Circle):
+    '''a black dot'''
+    def __init__(self, center_point, radius):
+        Circle.__init__(self, center_point, radius)
+        self.setFill("black")
 
 def dice(intNumber, centerPoint, intSize, graphwin):
     '''create a dice with <intNumber> dots at <centerPoint> of <intSize> on <graphwin>'''
@@ -25,20 +112,20 @@ def dice(intNumber, centerPoint, intSize, graphwin):
     dots = (dot0, dot1, dot2, dot3, dot4, dot5)
     
     # prepare the coordinates for 1 dot to 6 dots in each lines
-    points  = [\
-        [Point(intX, intY)], \
-        [Point(intX - intS, intY - intS), Point(intX + intS, intY + intS)], \
-        [Point(intX, intY), \
-             Point(intX - intS, intY - intS), Point(intX + intS, intY + intS)], \
-        [Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
-             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)], \
-        [Point(intX, intY), \
+    points  = (\
+        (Point(intX, intY), ), \
+        (Point(intX - intS, intY - intS), Point(intX + intS, intY + intS)), \
+        (Point(intX, intY), \
+             Point(intX - intS, intY - intS), Point(intX + intS, intY + intS)), \
+        (Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
+             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)), \
+        (Point(intX, intY), \
              Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
-             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)], \
-        [Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
+             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)), \
+        (Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
              Point(intX - intS, intY), Point(intX + intS, intY), \
-             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)]\
-        ]
+             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS))\
+        )
     
     # draw each dots by dot()
     for d, p in zip(dots, points[intNumber - 1]):
@@ -96,7 +183,7 @@ def main():
     textboxExit = textbox("EXIT", Point(intWidth * .9, intHeight * .9), \
                           80, 50, win) # (text, box)
     # draw Show button
-    textboxClick = textbox("Click to\n throw dices", \
+    textboxClick = textbox("Click to\n show dices", \
                            Point(intWidth // 2, intHeight // 2 + intSize), \
                            100, 50, win) # (text, box)
 
@@ -136,5 +223,5 @@ def main():
     #finally close the window
     win.close()
 
-if __name__ == '__main__': #run only in a direct call
-    main()
+##if __name__ == '__main__': #run only in a direct call
+##    main()
