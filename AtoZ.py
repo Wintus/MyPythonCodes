@@ -1,6 +1,7 @@
 class AtoZ():
     def __init__(self):
-        self.atoz = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        self.atoz = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+##        list(map(chr, range(ord('A'), ord('Z')+1)))
     
     def __iter__(self):
         self.atoz = list(map(chr, range(ord('A'), ord('Z')+1)))
@@ -15,6 +16,10 @@ class AtoZ():
     def __call__(self):
         return self.atoz.pop(0)
 
+    def lower(self):
+        self.atoz = [c.lower() for c in self]
+        return self
+
 def pyramid():
     s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     n = 1
@@ -23,3 +28,6 @@ def pyramid():
         s = s[n:]
         n += 1
 
+if __name__ == '__main__':
+    print("AtoZ:", list(AtoZ()))
+    print("a2z:", list(AtoZ().lower()))
