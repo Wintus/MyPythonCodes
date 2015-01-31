@@ -49,7 +49,7 @@ class Dice(Square, Dot):
 
         # make dots
         pointss = []
-        def pss():
+        def pss(i):
             nonlocal pointss, center_point, space
             for n in range(6):
                 points = []
@@ -57,19 +57,20 @@ class Dice(Square, Dot):
                     points.append(center_point.clone())
                 pointss.append(points)
             # == [[Point], [Point, Point], ... , [..., Point]]
-            for i in range(1, 6): # topLeft & bottomRight of 2-6
+            if i in range(1, 6):
                 pointss[i][0].move(-space, -space)
                 pointss[i][1].move(space, space)
-            for i in range(3, 6): # bottomLeft & topRight of 4, 5, 6
+            if i in range(3, 6):
                 pointss[i][2].move(-space, space)
                 pointss[i][3].move(space, -space)
-            # the middle two of 6
-            pointss[5][4].move(-space, 0)
-            pointss[5][5].move(space, 0)
+            if i == 5:
+                # the middle two of 6
+                pointss[5][4].move(-space, 0)
+                pointss[5][5].move(space, 0)
             return pointss
 
         self.dots   = []
-        pointss     = pss()
+        pointss     = pss(self.number)
         points      = pointss[self.number]
         self.pointss= pointss
         self.points = points
@@ -94,12 +95,11 @@ class Dice(Square, Dot):
         '''_ -> throw, n -> show n'''
         if not n: # [] == no argument
             self.number = random.randint(1, 6)
-            self = self.clone()
         elif n[0]: # a number
             self.setNumber(int(n[0]))
-            self = self.clone()
         else:
             raise ValueError("Invalid argument")
+        return self.clone()
 
     def clone(self):
         other = Dice(self.center, self.size, self.number)
@@ -147,83 +147,6 @@ def draw_all(canvas, *sequance):
     for obj in sequance:
         obj.draw(canvas)
 
-##def dice(intNumber, centerPoint, intSize, graphwin):
-##    '''create a dice with <intNumber> dots at <centerPoint> of <intSize> on <graphwin>'''
-##    intX = centerPoint.getX()
-##    intY = centerPoint.getY()
-##    intL = intSize // 2
-##    intS = intSize // 4
-##    intR = intSize // 10
-##    
-##    # create a white box
-##    box  = Rectangle(Point(intX - intL, intY - intL), \
-##                     Point(intX + intL, intY + intL))
-##    box.setFill("white")
-##    box.draw(graphwin)
-##    
-##    # initialize dots
-##    dot0, dot1, dot2, dot3, dot4, dot5 = tuple(range(6))
-##    dots = (dot0, dot1, dot2, dot3, dot4, dot5)
-##    
-##    # prepare the coordinates for 1 dot to 6 dots in each lines
-##    points  = (\
-##        (Point(intX, intY), ), \
-##        (Point(intX - intS, intY - intS), Point(intX + intS, intY + intS)), \
-##        (Point(intX, intY), \
-##             Point(intX - intS, intY - intS), Point(intX + intS, intY + intS)), \
-##        (Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
-##             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)), \
-##        (Point(intX, intY), \
-##             Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
-##             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS)), \
-##        (Point(intX - intS, intY - intS), Point(intX + intS, intY - intS), \
-##             Point(intX - intS, intY), Point(intX + intS, intY), \
-##             Point(intX + intS, intY + intS), Point(intX - intS, intY + intS))\
-##        )
-##    
-##    # draw each dots by dot()
-##    for d, p in zip(dots, points[intNumber - 1]):
-##        # zip(): [1, 2, 3, 4] & [a, b, c] -> [(1, a), (2, b), (3, c)]
-##        # (omit the excess)
-##        d = dot(p, intR, graphwin)
-##        
-##    return box, dots # return a tuple
-##
-##def dot(centerPoint, intSize, graphwin):
-##    '''create and draw a black dot at <centerPoint> of <intSize> on <graphwin>'''
-##    dot = Circle(centerPoint, intSize)
-##    dot.setFill("black")
-##    dot.draw(graphwin)
-##    return dot
-##
-##def textbox(strText, centerPoint, intWidth, intHeight, graphwin):
-##    '''create a textbox with <strText> of <intWidth> & <intHeight> on <graphwin>'''
-##    intX = centerPoint.getX()
-##    intY = centerPoint.getY()
-##    intW = intWidth  // 2
-##    intH = intHeight // 2
-##    # make a box
-##    box  = Rectangle(Point(intX - intW, intY - intH), \
-##                     Point(intX + intW, intY + intH))
-##    box.setFill("white")
-##    # make a text
-##    text = Text(centerPoint, strText, )
-##    # draw the both
-##    box.draw(graphwin)
-##    text.draw(graphwin)
-##    return text, box
-##
-##def inArea(rectangle, point):
-##    '''determine the clicked point is in the rectangular area or not'''
-##    pointX      = point.getX()
-##    pointY      = point.getY()
-##    leftEnd     = rectangle.getP1().getX()
-##    rightEnd    = rectangle.getP2().getX()
-##    topEnd      = rectangle.getP1().getY()
-##    bottomEnd   = rectangle.getP2().getY()
-##    return leftEnd < pointX < rightEnd \
-##           and topEnd < pointY < bottomEnd # return Boolean
-
 if __name__ == '__main__': #run only in a direct call
     # create window
     intWidth    = 400
@@ -232,49 +155,31 @@ if __name__ == '__main__': #run only in a direct call
     win         = GraphWin("Dice", intWidth, intHeight)
     
     # make Exit button
-##    textboxExit = textbox("EXIT", Point(intWidth * .9, intHeight * .9), \
-##                          80, 50, win) # (text, box)
     textbox_exit = TextBox(Point(intWidth * .9, intHeight * .9), "EXIT", 80, 50)
     # make Show button
-##    textboxClick = textbox("Click to\n show dices", \
-##                           Point(intWidth // 2, intHeight // 2 + intSize), \
-##                           100, 50, win) # (text, box)
     textbox_click = TextBox(Point(intWidth // 2, intHeight // 2 + intSize), \
                             "Click to\n throw dices", 100, 50)
-
     # make tip
     strText = "Throw 3 dices"
-##    textboxNumber = textbox(strText, \
-##                            Point(intWidth // 2, intHeight // 2 - intSize * 1.2), \
-##                            200, 30, win) # (text, box)
-    textbox_n = TextBox(Point(intWidth // 2, intHeight // 2 - intSize * 1.2), \
+    textbox_n = TextBox(Point(intWidth // 2, intHeight // 2 - intSize), \
                         strText, 200, 30)
-
+    # draw textboxes
     draw_all(win, textbox_exit, textbox_click, textbox_n)
 
+    # make 3 dices
+##    rn = random.randint(1, 6)
+    rn = 5
+    dice0 = Dice(Point(intWidth / 4 * .8, intHeight / 2), intSize, rn)
+    dice1 = Dice(Point(intWidth / 2, intHeight / 2), intSize, rn)
+    dice2 = Dice(Point(intWidth / 4 * 3.2, intHeight / 2), intSize, rn)
+    
     # infinity loop to get mouse click unless push exit button
     try:
         while True:
             clicked = win.getMouse() # wait until clicked
-    ##        if inArea(textboxClick[1], clicked):
             if textbox_click.in_area(clicked):
-                # draw a dice
-##                dice0 = dice(random.randint(1, 6), \
-##                             Point(intWidth // 4 * .8, intHeight // 2), \
-##                             intSize, win)
-                dice0 = Dice(Point(intWidth / 4 * .8, intHeight / 2), intSize, \
-                             random.randint(1, 6))
-##                dice1 = dice(random.randint(1, 6), \
-##                             Point(intWidth // 2, intHeight // 2), intSize, win)
-                dice1 = Dice(Point(intWidth / 2, intHeight / 2), intSize, \
-                             random.randint(1, 6))
-##                dice2 = dice(random.randint(1, 6), \
-##                             Point(intWidth // 4 * 3.2, intHeight // 2), \
-##                             intSize, win)
-                dice2 = Dice(Point(intWidth / 4 * 3.2, intHeight / 2), intSize, \
-                             random.randint(1, 6))
-                draw_all(win, dice0, dice1, dice2)
-    ##        elif inArea(textboxExit[1], clicked):
+                # throw & draw 3 dices
+                draw_all(win, *(d() for d in (dice0, dice1, dice2)))
             elif textbox_exit.in_area(clicked):
                 raise Exit("Exit button pushed") # jump out from the loop
             else:
@@ -282,14 +187,3 @@ if __name__ == '__main__': #run only in a direct call
     finally:
         #finally close the window
         win.close()
-
-##    # test
-##    win = GraphWin("TEST", 400, 300)
-##    textbox_exit = TextBox(Point(200, 70), "A Dice", 60, 20)
-##    dice = Dice(Point(200, 150), 100, 5)
-##    draw_all(win, textbox_exit, dice)
-##    win.getMouse()
-##    dice0 = dice.clone()
-##    dice0(2)
-##    print(dice0.getNumber())
-##    dice0.draw(win)
