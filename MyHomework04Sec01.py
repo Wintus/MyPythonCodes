@@ -55,6 +55,14 @@ def main():
             coffees = {'J':"Jonestown Brew", 'P':"Plymouth Jolt",}            
             print("Jonestown Brew: J, Plymouth Jolt: P")
             coffee = str(input("Coffee?: ")).upper()
+##            if not coffee:
+##                raise ValueError("Empty input")
+##            elif coffee == 'J':
+##                order = "Jonestown Brew"
+##            elif coffee == 'P':
+##                order = "Plymouth Jolt"
+##            else:
+##                raise ValueError("Invalid input")
             print('>', coffees[coffee])
             print()
             lbs = float(input("Amount? (lbs): "))
@@ -62,7 +70,8 @@ def main():
             total += coffee_price(order, lbs)
             print()
 
-            region = str(input("Region?: ")).upper()
+            city = str(input("City?: ")).title()
+            region = str(input("State?: ")).upper()
             states = {'W':"Washington", 'C':"California", 'T':"Texas", \
                       'O':"Oregon", 'F':"Florida", '':"the Others",}
             print('>', states[region])
@@ -89,6 +98,7 @@ def main():
         
         except ValueError:
             print("Please input correctly")
+            print()
 
     print("Thank you for shopping")
     
