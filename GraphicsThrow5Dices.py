@@ -6,7 +6,7 @@
 from graphics import *
 import random
 
-DEBUG = False
+DEBUG = True
 
 class Exit(Exception): pass
 
@@ -211,32 +211,31 @@ if __name__ == '__main__':
     try:
         while True:
             clicked = win.getMouse() # wait until clicked
-            i = 0
-            for r in rooms:
-                if r.box.in_area(clicked):
-                    ds[i]().draw(win)
-                    intThrown += 1
-                    break
-                else:
-                    i += 1
+            # check the throw button
             if textbox_click.in_area(clicked):
                 # throw & draw all dices
                 intThrown += 5
                 ds = tuple(d() for d in dices)
                 draw_all(win, *ds)
+            # check the exit button
             elif textbox_exit.in_area(clicked):
                 raise Exit("Exit button pushed") # jump out from the loop
             else:
-                pass
+                # check each rooms
+                for i in range(5):
+                    if rooms[i].box.in_area(clicked):
+                        ds[i]().draw(win)
+                        intThrown += 1
+                        break
             # calc the sum of the dices
             if DEBUG: print("Dices:", tuple(d.getNumber() for d in ds))
             num = sum(d.getNumber() for d in ds)
             if DEBUG: print("Sum:", num)
+            # refresh the text of the textbox
             textbox_sum.text.setText(strSum + str(num))
-            textbox_sum.text.redraw(win)
             textbox_thrown.text.setText(strThrown + str(intThrown))
-            textbox_thrown.text.redraw(win)
-##            del ds
+    except Exit:
+        print("Exit")
     finally:
         #finally close the window
         win.close()
