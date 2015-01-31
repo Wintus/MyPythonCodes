@@ -15,9 +15,11 @@ class AtoZ():
     def __call__(self):
         return self.atoz.pop(0)
 
-s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-n = 1
-while s:
-    print(s[:n])
-    s = s[n:]
-    n += 1
+def pyramid():
+    s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    n = 1
+    while s:
+        print(s[:n])
+        s = s[n:]
+        n += 1
+
