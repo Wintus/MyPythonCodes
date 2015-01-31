@@ -6,6 +6,8 @@
 from graphics import *
 import random
 
+DEBUG = False
+
 class Exit(Exception): pass
 
 class Square(Rectangle):
@@ -38,7 +40,8 @@ class Dice(Square, Dot):
     def __init__(self, center_point, size, number):
         self.center = center_point
         self.size   = size
-        self.number = number - 1
+        self.number = number
+        self.index  = self.number - 1
         half    = size / 2
         space   = size / 4
         radius  = size / 10
@@ -48,41 +51,36 @@ class Dice(Square, Dot):
         self.box.setFill("white")
 
         # make dots
-        pointss = []
         def pss(i):
-            nonlocal pointss, center_point, space
+            points = []
+            nonlocal center_point, space
             for n in range(6):
-                points = []
+                ps = []
                 for m in range(n + 1):
-                    points.append(center_point.clone())
-                pointss.append(points)
+                    ps.append(center_point.clone())
+                points.append(ps)
             # == [[Point], [Point, Point], ... , [..., Point]]
             if i in range(1, 6):
-                pointss[i][0].move(-space, -space)
-                pointss[i][1].move(space, space)
+                points[i][0].move(-space, -space)
+                points[i][1].move(space, space)
             if i in range(3, 6):
-                pointss[i][2].move(-space, space)
-                pointss[i][3].move(space, -space)
+                points[i][2].move(-space, space)
+                points[i][3].move(space, -space)
             if i == 5:
                 # the middle two of 6
-                pointss[5][4].move(-space, 0)
-                pointss[5][5].move(space, 0)
-            return pointss
+                points[5][4].move(-space, 0)
+                points[5][5].move(space, 0)
+            return points[i]
 
-        self.dots   = []
-        pointss     = pss(self.number)
-        points      = pointss[self.number]
-##        self.pointss= pointss
-##        self.points = points
-        self.dots   = tuple(Dot(p, radius) for p in points)
+        self.dots   = tuple(Dot(p, radius) for p in pss(self.index))
 
     def getNumber(self):
-        return self.number + 1
+        return self.number
 
     def setNumber(self, n):
         '''n :: int'''
         if 1 <= n <= 6:
-            self.number = n - 1
+            self.number = n
 
     def draw(self, canvas):
         # draw box
@@ -101,11 +99,12 @@ class Dice(Square, Dot):
     def __call__(self, *n): # callable instance
         '''_ -> throw, n -> show n'''
         if not n: # [] == no argument
-            self.number = random.randint(1, 6)
+            self.setNumber(random.randint(1, 6))
         elif n[0]: # a number
             self.setNumber(int(n[0]))
         else:
             raise ValueError("Invalid argument")
+        if DEBUG: print("Number:", self.getNumber())
         return self.clone()
 
     def clone(self):
@@ -139,6 +138,11 @@ class TextBox(Rectangle, Text):
 ##        other.cenfig = self.config.copy()
         return other
 
+# extend the object methods
+def redraw(self, win):
+    self.undraw()
+    self.draw(win)
+    
 def in_area(self, point):
     '''return Bool'''
     left_end    = self.p1.getX()
@@ -148,13 +152,16 @@ def in_area(self, point):
     return left_end < point.getX() < right_end \
            and top_end < point.getY() < bottom_end
 
-Rectangle.in_area = in_area # add it as unbound method
+Rectangle.in_area       = in_area # add it as unbound method
+GraphicsObject.redraw   = redraw  # as well
 
 def draw_all(canvas, *sequance):
     for obj in sequance:
         obj.draw(canvas)
 
-if __name__ == '__main__': #run only in a direct call
+
+#run only in a direct call
+if __name__ == '__main__':
     # create window
     intWidth    = 600
     intHeight   = 300
@@ -177,7 +184,11 @@ if __name__ == '__main__': #run only in a direct call
     strSum = "Sum: "
     textbox_sum = TextBox(Point(intWidth * .1, intHeight * .9), \
                           strSum, 100, 50, color)
-    
+    # show the number of the thrown
+    strThrown = "Thrown: "
+    intThrown = 0
+    textbox_thrown = TextBox(Point(intWidth * .3, intHeight * .9), \
+                             strThrown + str(intThrown), 100, 50, color)  
     # prepare positions of 5 dices
     point   = Point(intWidth / 2, intHeight / 2)
     points  = tuple(p.clone() for p in (point, ) * 5)
@@ -187,28 +198,15 @@ if __name__ == '__main__': #run only in a direct call
     rooms = tuple(TextBox(p, "Dice {}".format(n + 1), *([intSize + 10] * 2)) \
                   for n, p in enumerate(points))
     # draw textboxes
-    draw_all(win, textbox_exit, textbox_click, textbox_n, textbox_sum, \
-             *rooms)
+    draw_all(win, textbox_exit, textbox_click, textbox_n, \
+             textbox_sum, textbox_thrown, *rooms)
 
-    # make 3 dices
-##    rn = random.randint(1, 6)
-    rn = 5
-    dices = tuple(Dice(p, intSize, rn) for p in points)
-##    dices = (Dice(Point(intWidth / 2 - (intSize + intMargin) * 2, \
-##                        intHeight / 2), intSize, rn), \
-##             Dice(Point(intWidth / 2 - (intSize + intMargin), intHeight / 2), \
-##                  intSize, rn), \
-##             Dice(Point(intWidth / 2, intHeight / 2), intSize, rn), \
-##             Dice(Point(intWidth / 2 + (intSize + intMargin), intHeight / 2), \
-##                  intSize, rn), \
-##             Dice(Point(intWidth / 2 + (intSize + intMargin) * 2, \
-##                        intHeight / 2), intSize, rn)
-##             )
+    # make 5 dices
+    n = 0
+    dices = tuple(Dice(p, intSize, n) for p in points)
     ds = dices
-    def redraw(obj, win):
-        obj.undraw()
-        obj.draw(win)
-        
+    num = [0] * 5
+           
     # infinity loop to get mouse click unless push exit button
     try:
         while True:
@@ -216,25 +214,28 @@ if __name__ == '__main__': #run only in a direct call
             i = 0
             for r in rooms:
                 if r.box.in_area(clicked):
-                    redraw(dices[i](), win)
+                    ds[i]().draw(win)
+                    intThrown += 1
                     break
                 else:
                     i += 1
             if textbox_click.in_area(clicked):
                 # throw & draw all dices
+                intThrown += 5
                 ds = tuple(d() for d in dices)
                 draw_all(win, *ds)
-##                for d in dices:
-##                    redraw(d(), win)
             elif textbox_exit.in_area(clicked):
                 raise Exit("Exit button pushed") # jump out from the loop
             else:
                 pass
             # calc the sum of the dices
-            num = sum((d.getNumber() for d in dices))
+            if DEBUG: print("Dices:", tuple(d.getNumber() for d in ds))
+            num = sum(d.getNumber() for d in ds)
+            if DEBUG: print("Sum:", num)
             textbox_sum.text.setText(strSum + str(num))
-            textbox_sum.text.undraw()
-            textbox_sum.text.draw(win)
+            textbox_sum.text.redraw(win)
+            textbox_thrown.text.setText(strThrown + str(intThrown))
+            textbox_thrown.text.redraw(win)
 ##            del ds
     finally:
         #finally close the window
