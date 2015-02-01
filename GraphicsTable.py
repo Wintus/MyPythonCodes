@@ -65,57 +65,7 @@ class Button(TextBox):
     def is_clicked(self, point):
         if self.box.in_area(point):
             self.action.apply()
-    
-<<<<<<< HEAD
-=======
-##class Cell(TextBox):
-##    '''a cell in table'''
-##        
-##class Column(Cell):
-##    '''a column consisted of cells'''
-##    def __init__(self, point, cell_width, cell_height, iterable):
-####        self.point = point
-##        number = len(iterable)
-##        self.width  = cell_width  * number
-##        self.height = cell_height * number
-####        p1 = self.point.clone()
-####        p2 = self.point.clone()
-##        self.box    = Recangle(p1, p2)
-##        if all(isinstance(element, Cell) for element in iterable):
-##            self.cells = iterable
-##        else:
-##            self.cells = make_serise(point, cell_width, cell_height, iterable)
-##
-##    def make_serise(point, width, height, iterable):
-##        '''return a serise of Cells made by iterable'''
-##
-##class Row(Column, Cell):
-##    '''a row consisted of columns'''
-##    def __init__(self, point, columns):
-####        self.point  = point
-##        self.columns= columns
-##        self.width  = sum(c.width for c in self.columns)
-##        self.height = self.columns[0].height
-####        p1 = self.point.clone()
-####        p2 = self.point.clone()
-##        p2.move(self.width, self.height)
-##        self.box    = Rectangle(p1, p2)
-##
-##    def draw(self, graphwin):
-##        draw_all(graphwin, self.box, *self.cells)
-##
-##class Table(Row):
-##    '''a table of rows'''
-##    def __init__(self, point, width, height, rows):
-####        self.point  = point
-##        self.width  = width
-##        self.height = height
-##        self.rows   = rows
-##
-##    def draw(self, graphwin):
-##        draw_all(graphwin, self.box, *self.rows)
 
->>>>>>> origin/master
 if __name__ == '__main__':
     intWidth    = 800
     intHeight   = 600
