@@ -8,12 +8,6 @@ def draw_all(canvas, *objects):
     for obj in objects:
         obj.draw(canvas)
 
-def redraw(self, graphwin):
-    self.undraw()
-    self.draw(graphwin)
-
-GraphicsObject.redraw = redraw
-
 def in_area(self, point):
     '''whether point is in the area of rectangle or not
     return Boolean'''
@@ -46,21 +40,6 @@ class TextBox(Rectangle, Text):
     def draw(self, graphwin):
         draw_all(graphwin, self.box, self.text)
 
-class Action():
-    '''apply func to args'''
-    def __init__(self, function, *arguments):
-        self.func = function
-        self.args = arguments
-
-    def apply(self):
-        return self.func(*self.args)
-
-class Button(TextBox):
-    '''add a feature to check clicks'''
-    def __init__(self, point, width, height, text, action, bound='ALL'):
-        self.action = action
-        TextBox.__init__(self, point, width, height, text, bound='ALL')
-        
-    def is_clicked(self, point):
-        if self.box.in_area(point):
-            self.action.apply()
+    def setText(self, text):
+        '''override the Text's'''
+        self.text.setText(text)
