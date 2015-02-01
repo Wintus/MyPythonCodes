@@ -1,7 +1,8 @@
 '''Reports Generator'''
 
+from MyGraphics0 import *
 from stdout import *
-from MyGraphics import *
+from io import StringIO
 
 class States():
     '''US states and thier abbrebiations
@@ -76,24 +77,18 @@ class Family():
 
     def is_poverty(self):
         guideline   = self.guidelines[self.state]
-        if self.income < guideline[self.number]:
-            return True
-        else:
-            return False
+        return self.income < guideline[self.number]
 
     def __repr__(self):
         return "ID#: {}\tMember: {}\tIncome: {:,}\tState: {}"\
                .format(self.id, self.number, self.income, self.state)
     
-    def show_with_status(self, option=''):
+    def show_with_status(self):
         '''to write anything as option to add the status of poverty
     return: string'''
-        if option:
-            return str(self) + "\tStatus: {}"\
+        return str(self) + "\tStatus: {}"\
                    .format("Poverty" if self.is_poverty() else "Non Poverty")
-        else:
-            return str(self)
-
+    
 class Output():
     '''where to output: file / window'''
     def __init__(self, output_type='file', output_name='output.txt'):
@@ -159,30 +154,35 @@ def the_poverties(families, report1):
          RedirectStdoutTo(report):
         for family in families:
             if family.is_poverty():
-                print(family.show_with_status('SHOW'))
+                print(family.show_with_status())
 
 def the_above(families):
     average = Report(families).get_average()
-    for family in families:
-        if family.income >= average:
-            print(family.show_with_status('FOO'))
+    with StringIO() as output, RedirectStdoutTo(output):
+        for family in families:
+            if family.income >= average:
+                print(family.show_with_status())
+        return output.getvalue()
 
-def percentage(families):
+def percentage(families, strOutput):
     percent = Report(families).get_percentage()
-    print("In poverty: {:.1f}%".format(percent))
+    with StringIO() as output, RedirectStdoutTo(output):
+        print("In poverty: {:.1f}%".format(percent))
+        return output.getvalue()
 
 def with_status(families, report4):
     with open(report4, mode='w', encoding='utf-8') as report, \
          RedirectStdoutTo(report):
         for family in families:
-            print(family.show_with_status('SHOW'))
+            print(family.show_with_status())
 
 if __name__ == '__main__':
     # initialize data
-    filenameIn  = "familySurveyData.txt"
-    report1     = "Maemichi_Yuya_report01.txt"
-    report4     = "Maemichi_Yuya_report04.txt"
+    strImport   = "familySurveyData.txt"
+    strReport1  = "Maemichi_Yuya_report01.txt"
+    strReport4  = "Maemichi_Yuya_report04.txt"
     data_list   = []
+    imported    = False
     # initialize window
     intWidth    = 800
     intHeight   = 600
@@ -192,40 +192,52 @@ if __name__ == '__main__':
     win = GraphWin("Poverty Reports", intWidth, intHeight)
     win.setCoords(0, 0, intGridX, intGridY)
     # make 6 buttons
-    labels  = ("Import", "Report 1", "Report 2", "Report 3", "Report 4",
-               "EXIT", )
-    actions = (Action(win.close, ), ) * 6 # setting actions for each buttons
-    buttons = tuple(Button(Point(index + 1 + intMargin, 1), \
-                           (1 - intMargin * 2), 1, label, Action(win.close, ))\
-                    for index, label, action in zip(range(6), labels, actions))
+    labels  = ("Import", "Report 1", "Report 2", "Report 3", "Report 4", "EXIT")
+    buttons = tuple(TextBox(Point(index + 1 + intMargin, 1), \
+                            (1 - intMargin * 2), 1, label)\
+                    for index, label in zip(range(6), labels))
     # make a display area
-    display = TextBox(Point(1, 3), intGridX - 2, intGridY - 4, "display")
+    strDisplay = "display area"
+    display = TextBox(Point(1, 3), intGridX - 2, intGridY - 4, strDisplay)
+    # then draw them all
     draw_all(win, display, *buttons)
+    
     # manage mouse clicks
     # infinily loop to get mouse clicks
     try:
         while True:
             clicked = win.getMouse()
-            for button in buttons:
-##                button.is_clicked(clicked)
-                if button.in_area(clicked):
-                    raise Exit("Exit button clicked")
+            if buttons[0].in_area(clicked): # import
+                if not imported:
+                    # open the file then store the data into the data list
+                    data_list = import_file(strImport)
+                    imported = True
+                    display.setText("Imported")
+                else:
+                    display.setText("Already imported")
+            elif buttons[1].in_area(clicked) and imported: # report1
+                # write out the report1
+                the_poverties(data_list, strReport1)
+                display.setText("Report 1 is generated")
+            elif buttons[2].in_area(clicked) and imported: # report2
+                # display the report2
+                the_above(data_list, strDisplay)
+                display.setText("Report 2 is generated")
+            elif buttons[3].in_area(clicked) and imported: # report3
+                # display the report3
+                percentage(data_list, strDisplay)
+                display.setText("Report 3 is generated")
+            elif buttons[4].in_area(clicked) and imported: # report4
+                # write out the report4
+                with_status(data_list, strReport4)
+                display.setText("Report 4 is generated")
+            elif not imported:
+                display.setText("Please import the file")
+            if buttons[5].in_area(clicked): # exit
+                raise Exit("Exit button clicked") # get out from this loop
     except Exit:
         win.close()
     finally:
-        win.close()
-            
-    # open the file then store the data into the list
-    data_list = import_file(filenameIn)
-    # write out the report1
-    the_poverties(data_list, report1)
-    # display the report2
-    the_above(data_list)
-    print()
-    # display the report3
-    percentage(data_list)
-    print()
-    # write out the report4
-    with_status(data_list, report4)
-    # process finished
-    print('finished')
+        win.close() # make sure win is closed
+        # process finished
+        print('finished')
