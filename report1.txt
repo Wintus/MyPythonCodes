@@ -1,4 +1,0 @@
-ID#: 3490	Member: 5	Income: 23,000	State: AK	Status: Poverty
-ID#: 3494	Member: 3	Income: 16,400	State: HI	Status: Poverty
-ID#: 3499	Member: 8	Income: 30,000	State: VA	Status: Poverty
-ID#: 3502	Member: 3	Income: 13,000	State: PN	Status: Poverty
