@@ -1,1 +1,1 @@
-# Project:	Template (MaemichiYuyaTemplate01Sec01.py)# Name:	        Yuya Maemichi# Date:		MM/DD/14# Description: 	This program do something.def main():    '''the main function'''if __name__ == '__main__': #run only in a direct call    main()
+# Project:      Template (MaemichiYuyaTemplate01Sec01.py)# Name:         Yuya Maemichi# Date:         MM/DD/14# Description:  This program do something.def main():    '''the main function'''if __name__ == '__main__': #run only in a direct call    main()
