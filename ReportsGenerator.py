@@ -164,7 +164,7 @@ def the_above(families):
                 print(family.show_with_status())
         return output.getvalue()
 
-def percentage(families, strOutput):
+def percentage(families):
     percent = Report(families).get_percentage()
     with StringIO() as output, RedirectStdoutTo(output):
         print("In poverty: {:.1f}%".format(percent))
@@ -221,12 +221,12 @@ if __name__ == '__main__':
                 display.setText("Report 1 is generated")
             elif buttons[2].in_area(clicked) and imported: # report2
                 # display the report2
-                the_above(data_list, strDisplay)
-                display.setText("Report 2 is generated")
+                strDisplay = the_above(data_list,)
+                display.setText(strDisplay)
             elif buttons[3].in_area(clicked) and imported: # report3
                 # display the report3
-                percentage(data_list, strDisplay)
-                display.setText("Report 3 is generated")
+                strDisplay = percentage(data_list, )
+                display.setText(strDisplay)
             elif buttons[4].in_area(clicked) and imported: # report4
                 # write out the report4
                 with_status(data_list, strReport4)
