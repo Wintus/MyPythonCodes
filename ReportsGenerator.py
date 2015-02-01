@@ -148,7 +148,7 @@ class ReportGenerator():
 def import_file(filename):
     with open(filename, encoding='utf-8') as file:
         families = []
-        for line in file:#.readlines():
+        for line in file:
             data = line.split()
             data = [int(element) for element in data[:-1]] + [data[-1]]
             families.append(Family(*data))
@@ -191,17 +191,30 @@ if __name__ == '__main__':
     intMargin   = .1
     win = GraphWin("Poverty Reports", intWidth, intHeight)
     win.setCoords(0, 0, intGridX, intGridY)
-
-    labels  = ("EXIT", ) * 6
-    actions = (Action(win.close, ), ) * 6
+    # make 6 buttons
+    labels  = ("Import", "Report 1", "Report 2", "Report 3", "Report 4",
+               "EXIT", )
+    actions = (Action(win.close, ), ) * 6 # setting actions for each buttons
     buttons = tuple(Button(Point(index + 1 + intMargin, 1), \
                            (1 - intMargin * 2), 1, label, Action(win.close, ))\
                     for index, label, action in zip(range(6), labels, actions))
-    draw_all(win, *buttons)
-    
-    clicked = win.getMouse()
-    for button in buttons:
-        button.is_clicked(clicked)
+    # make a display area
+    display = TextBox(Point(1, 3), intGridX - 2, intGridY - 4, "display")
+    draw_all(win, display, *buttons)
+    # manage mouse clicks
+    # infinily loop to get mouse clicks
+    try:
+        while True:
+            clicked = win.getMouse()
+            for button in buttons:
+##                button.is_clicked(clicked)
+                if button.in_area(clicked):
+                    raise Exit("Exit button clicked")
+    except Exit:
+        win.close()
+    finally:
+        win.close()
+            
     # open the file then store the data into the list
     data_list = import_file(filenameIn)
     # write out the report1
