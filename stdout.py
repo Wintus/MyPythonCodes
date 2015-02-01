@@ -11,7 +11,9 @@ class RedirectStdoutTo:
     def __exit__(self, *args):
         sys.stdout = self.out_old
 
-print('A')
-with open('out.log', mode='w', encoding='utf-8') as a_file, RedirectStdoutTo(a_file):
-    print('B')
-print('C')
+if __name__ == '__main__':
+    print('A')
+    with open('out.log', mode='w', encoding='utf-8') as a_file, \
+         RedirectStdoutTo(a_file):
+        print('B')
+    print('C')
