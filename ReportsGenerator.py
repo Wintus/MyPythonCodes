@@ -1,6 +1,7 @@
 '''Reports Generator'''
 
 from stdout import *
+from MyGraphics import *
 
 class States():
     '''US states and thier abbrebiations
@@ -9,9 +10,9 @@ class States():
         with open("states.txt", mode='r', encoding='utf-8') as a_file:
             states = {}
             for a_line in a_file:
-                a_list = a_line.split()
+                a_list = a_line.split('\t')
                 if a_list:
-                    states[a_list[-1]] = ' '.join(a_list[:-1])
+                    states[a_list[1].rstrip()] = a_list[0].rstrip()
         self.states = states
 
     def __getitem__(self, abbrebiation='WA'):
@@ -20,13 +21,9 @@ class States():
     def is_state(self, name):
         a_name = name.upper()
         try:
-            if self.states[a_name]:
-                return True
+            return self.states[a_name]
         except KeyError:
-            if any(a_name == state for abb, state in self.states.items()):
-                return True
-            else:
-                return False
+            return any(a_name == state for abb, state in self.states.items())
     
 class Guideline():
     '''a guideline of a state'''
@@ -40,22 +37,19 @@ class Guideline():
         if 1 <= key <= 8:
             return self.list[key - 1] # convert to index
         else:
-            return self.increment * key
+            return self.list[-1] + self.increment * (key - 8)
 
 class Guidelines(Guideline):
     '''poverty guidelines of US
     singleton'''
     def __init__(self):
         self.states = States()
-        self.Alaska = Guideline((11630, 15610, 19590, 23570, \
-                                 27550, 31530, 35510, 39490), \
-                                3980)
-        self.Hawaii = Guideline((10700, 14360, 18020, 21680, \
-                                 25340, 29000, 32660, 36320), \
-                                3660)
-        self.other = Guideline((9310, 12490, 15670, 18850, \
-                                22030, 25210, 28390, 31570), \
-                               3180)
+        self.Alaska = Guideline(
+            (11630, 15610, 19590, 23570, 27550, 31530, 35510, 39490), 3980)
+        self.Hawaii = Guideline(
+            (10700, 14360, 18020, 21680, 25340, 29000, 32660, 36320), 3660)
+        self.other = Guideline(
+            (9310, 12490, 15670, 18850, 22030, 25210, 28390, 31570), 3180)
         
     def __getitem__(self, state):
         if self.states[state] == 'Alaska':
@@ -74,14 +68,11 @@ class Family():
                  yearly_income=0, state_of_residence=''):
         # sample: 3489 4 4500 WA
         # a_family = Family(3489, 4, 4500, "WA")
-        self.id     = int(id_number)
-        self.number = int(family_members_number)
-        self.income = int(yearly_income)
+        self.id     = id_number
+        self.number = family_members_number
+        self.income = yearly_income
         self.state  = state_of_residence
         self.guidelines = Guidelines()
-
-##    def get(self):
-##        return self.id, self.number, self.income, self.state
 
     def is_poverty(self):
         guideline   = self.guidelines[self.state]
@@ -102,7 +93,6 @@ class Family():
                    .format("Poverty" if self.is_poverty() else "Non Poverty")
         else:
             return str(self)
-        
 
 class Output():
     '''where to output: file / window'''
@@ -120,7 +110,7 @@ class Output():
         return self.type == 'file'
 
     def is_window(self):
-        return self.name == 'window'
+        return self.type == 'window'
 
 class Report():
     '''report object of Families'''
@@ -147,71 +137,82 @@ class ReportGenerator():
         self.data   = data
         self.report = Report(data)
 
-    def generate(self, mode=1, output=Output('file', 'output.txt')):
+    def generate(self, report_func, output=Output('file', 'output.txt')):
         '''generate a Report object from given data and output'''
         if output.is_file:
-            pass
+            report_func(self.report)
 
-class Window():
-    '''the window to control and display reports
-    singleton'''
-##    from Table import *
+    def report(self, mode=1):
+        '''write out a report in a given mode'''
 
-def reporter(families, func, output):
-    pass
+def import_file(filename):
+    with open(filename, encoding='utf-8') as file:
+        families = []
+        for line in file:#.readlines():
+            data = line.split()
+            data = [int(element) for element in data[:-1]] + [data[-1]]
+            families.append(Family(*data))
+    return families
+
+def the_poverties(families, report1):
+    with open(report1, mode='w', encoding='utf-8') as report, \
+         RedirectStdoutTo(report):
+        for family in families:
+            if family.is_poverty():
+                print(family.show_with_status('SHOW'))
+
+def the_above(families):
+    average = Report(families).get_average()
+    for family in families:
+        if family.income >= average:
+            print(family.show_with_status('FOO'))
+
+def percentage(families):
+    percent = Report(families).get_percentage()
+    print("In poverty: {:.1f}%".format(percent))
+
+def with_status(families, report4):
+    with open(report4, mode='w', encoding='utf-8') as report, \
+         RedirectStdoutTo(report):
+        for family in families:
+            print(family.show_with_status('SHOW'))
 
 if __name__ == '__main__':
+    # initialize data
     filenameIn  = "familySurveyData.txt"
     report1     = "Maemichi_Yuya_report01.txt"
     report4     = "Maemichi_Yuya_report04.txt"
     data_list   = []
+    # initialize window
+    intWidth    = 800
+    intHeight   = 600
+    intGridX    = 6 + 2
+    intGridY    = 16
+    intMargin   = .1
+    win = GraphWin("Poverty Reports", intWidth, intHeight)
+    win.setCoords(0, 0, intGridX, intGridY)
+
+    labels  = ("EXIT", ) * 6
+    actions = (Action(win.close, ), ) * 6
+    buttons = tuple(Button(Point(index + 1 + intMargin, 1), \
+                           (1 - intMargin * 2), 1, label, Action(win.close, ))\
+                    for index, label, action in zip(range(6), labels, actions))
+    draw_all(win, *buttons)
+    
+    clicked = win.getMouse()
+    for button in buttons:
+        button.is_clicked(clicked)
     # open the file then store the data into the list
-##    def import_file(filename):
-    with open(filenameIn, encoding='utf-8') as file:
-        for line in file:#.readlines():
-            data = line.split()
-##            print(data)
-            data_list.append(Family(*data))
-##    print(tuple(data.get() for data in data_list))
-    # display on the shell
-    def show(families):
-        for family in families:
-            print(family.show_with_status('SHOW'))
-##    show(data_list)
+    data_list = import_file(filenameIn)
     # write out the report1
-    def the_poverties(families):
-##        nonlocal report1 # not in the function! or must be in the main()
-        report1 = "report1.txt"
-        with open(report1, mode='w', encoding='utf-8') as report, \
-             RedirectStdoutTo(report):
-            for family in families:
-                if family.is_poverty():
-##                    report.write(family.show_with_status('SHOW') + '\n')
-                    print(family.show_with_status('SHOW'))
-    the_poverties(data_list)
+    the_poverties(data_list, report1)
     # display the report2
-    def the_above(families, func):
-        average = Report(families).get_average()
-        for family in families:
-            if family.income >= average:
-##                func(str(family))
-                func(family.show_with_status('FOO'))
-    the_above(data_list, print)
-    # display the report3
+    the_above(data_list)
     print()
-    def percentage(families):
-        report3 = Report(families)
-        print("In poverty: {:.1f}%".format(report3.get_percentage()))
+    # display the report3
     percentage(data_list)
     print()
     # write out the report4
-    def with_status(families):
-        report4 = "report4.txt"
-        with open(report4, mode='w', encoding='utf-8') as report, \
-             RedirectStdoutTo(report):
-            for family in families:
-##                report.write(family.show_with_status('SHOW') + '\n')
-                print(family.show_with_status('SHOW'))
-    with_status(data_list)
+    with_status(data_list, report4)
     # process finished
     print('finished')
