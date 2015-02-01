@@ -1,11 +1,16 @@
-'''Reports Generator'''
+# Project:      Poverty Reports (MaemichiYuyaHomework06Sec01.py)
+# Name:         Yuya Maemichi
+# Date:         06/17/14
+# Description:  This program creates 4 types of poverty reports.
+
+'''Homework 6: Poverty Reports'''
 
 from MyGraphics0 import *
 from stdout import *
 from io import StringIO
 
 class States():
-    '''US states and thier abbrebiations
+    '''US states and their abbreviations
     singleton'''
     def __init__(self):
         with open("states.txt", mode='r', encoding='utf-8') as a_file:
@@ -16,14 +21,17 @@ class States():
                     states[a_list[1].rstrip()] = a_list[0].rstrip()
         self.states = states
 
-    def __getitem__(self, abbrebiation='WA'):
-        return self.states[abbrebiation.upper()].title()
+    def __getitem__(self, abbreviation='WA'):
+        '''pretend as a dictionary'''
+        return self.states[abbreviation.upper()].title()
 
     def is_state(self, name):
-        a_name = name.upper()
+        a_name = name.upper() # make it case-insensitive
         try:
+            # try to look up by a_name as an abbreviation
             return self.states[a_name]
         except KeyError:
+            # if failed, search all names of states as a full name
             return any(a_name == state for abb, state in self.states.items())
     
 class Guideline():
@@ -61,14 +69,13 @@ class Guidelines(Guideline):
             return self.other
         else:
             raise KeyError("Not a state")
-    
 
 class Family():
     '''imported data entry of families'''
     def __init__(self, id_number=-1, family_members_number=0, \
                  yearly_income=0, state_of_residence=''):
         # sample: 3489 4 4500 WA
-        # a_family = Family(3489, 4, 4500, "WA")
+        # => Family(3489, 4, 4500, "WA")
         self.id     = id_number
         self.number = family_members_number
         self.income = yearly_income
@@ -80,33 +87,15 @@ class Family():
         return self.income < guideline[self.number]
 
     def __repr__(self):
-        return "ID#: {}\tMember: {}\tIncome: {:,}\tState: {}"\
+        return "ID#: {:4}\tMember: {:2}\tIncome: {:6,}\tState: {:2}"\
                .format(self.id, self.number, self.income, self.state)
     
     def show_with_status(self):
         '''to write anything as option to add the status of poverty
     return: string'''
-        return str(self) + "\tStatus: {}"\
+        return str(self) + "\tStatus: {:11}"\
                    .format("Poverty" if self.is_poverty() else "Non Poverty")
     
-class Output():
-    '''where to output: file / window'''
-    def __init__(self, output_type='file', output_name='output.txt'):
-        self.type = output_type # file / window
-        self.name = output_name # filename / window object
-
-    def getType(self):
-        return self.type
-
-    def getName(self):
-        return self.name
-
-    def is_file(self):
-        return self.type == 'file'
-
-    def is_window(self):
-        return self.type == 'window'
-
 class Report():
     '''report object of Families'''
     def __init__(self, families):
@@ -124,22 +113,6 @@ class Report():
                         / len(self.families)
         return poverty_rate * 100
     
-class ReportGenerator():
-    '''make 4 different types of reports and output them
-    singleton'''
-    def __init__(self, data):
-        '''data is list of Familiy instances'''
-        self.data   = data
-        self.report = Report(data)
-
-    def generate(self, report_func, output=Output('file', 'output.txt')):
-        '''generate a Report object from given data and output'''
-        if output.is_file:
-            report_func(self.report)
-
-    def report(self, mode=1):
-        '''write out a report in a given mode'''
-
 def import_file(filename):
     with open(filename, encoding='utf-8') as file:
         families = []
@@ -149,40 +122,62 @@ def import_file(filename):
             families.append(Family(*data))
     return families
 
-def the_poverties(families, report1):
-    with open(report1, mode='w', encoding='utf-8') as report, \
-         RedirectStdoutTo(report):
-        for family in families:
-            if family.is_poverty():
-                print(family.show_with_status())
+# http://stackoverflow.com/questions/739654/how-can-i-make-a-chain-of-function-decorators-in-python
+def output_decorator_generator(mode='file'):
+    def output_decorator(func):
+        def wrapper(data, filename='output.txt'):
+            if mode == 'file':
+                with open(filename, mode='w', encoding='utf-8') as output, \
+                     RedirectStdoutTo(output):
+                    # this is equivalent with the below two lines
+##                with open(filename, mode='w', encoding='utf-8') as output:
+##                    with RedirectStdoutTo(output): # nested
+                    func(data)
+            elif mode == 'string':
+                with StringIO() as output, RedirectStdoutTo(output):
+                    func(data)
+                    return output.getvalue() # output is closed when it returns
+            else:
+                func(data)
+        return wrapper
+    return output_decorator
 
-def the_above(families):
-    average = Report(families).get_average()
-    with StringIO() as output, RedirectStdoutTo(output):
-        for family in families:
-            if family.income >= average:
-                print(family.show_with_status())
-        return output.getvalue()
+# filenames of 2 reports
+strReport1  = "report1.txt"
+strReport4  = "report4.txt"
 
-def percentage(families):
-    percent = Report(families).get_percentage()
-    with StringIO() as output, RedirectStdoutTo(output):
-        print("In poverty: {:.1f}%".format(percent))
-        return output.getvalue()
-
-def with_status(families, report4):
-    with open(report4, mode='w', encoding='utf-8') as report, \
-         RedirectStdoutTo(report):
-        for family in families:
+@output_decorator_generator(mode='file')
+def the_poverties(families, filename=strReport1):
+    for family in families:
+        if family.is_poverty():
             print(family.show_with_status())
 
+@output_decorator_generator(mode='string')
+def the_above(families):
+    average = Report(families).get_average()
+    for family in families:
+        if family.income >= average:
+            print(family.show_with_status())
+
+@output_decorator_generator(mode='string')
+def percentage(families):
+    percent = Report(families).get_percentage()
+    print("In poverty: {:.1f}%".format(percent))
+
+@output_decorator_generator(mode='file')
+def with_status(families, filename=strReport4):
+    for family in families:
+        print(family.show_with_status())
+
 if __name__ == '__main__':
+    print('Poverty Reports')
     # initialize data
     strImport   = "familySurveyData.txt"
     strReport1  = "Maemichi_Yuya_report01.txt"
     strReport4  = "Maemichi_Yuya_report04.txt"
     data_list   = []
     imported    = False
+    
     # initialize window
     intWidth    = 800
     intHeight   = 600
@@ -191,6 +186,7 @@ if __name__ == '__main__':
     intMargin   = .1
     win = GraphWin("Poverty Reports", intWidth, intHeight)
     win.setCoords(0, 0, intGridX, intGridY)
+    
     # make 6 buttons
     labels  = ("Import", "Report 1", "Report 2", "Report 3", "Report 4", "EXIT")
     buttons = tuple(TextBox(Point(index + 1 + intMargin, 1), \
@@ -199,6 +195,7 @@ if __name__ == '__main__':
     # make a display area
     strDisplay = "display area"
     display = TextBox(Point(1, 3), intGridX - 2, intGridY - 4, strDisplay)
+    
     # then draw them all
     draw_all(win, display, *buttons)
     
@@ -221,11 +218,13 @@ if __name__ == '__main__':
                 display.setText("Report 1 is generated")
             elif buttons[2].in_area(clicked) and imported: # report2
                 # display the report2
-                strDisplay = the_above(data_list,)
+                strDisplay = "Report 2: families above the average income\n\n" \
+                              + the_above(data_list,)
                 display.setText(strDisplay)
             elif buttons[3].in_area(clicked) and imported: # report3
                 # display the report3
-                strDisplay = percentage(data_list, )
+                strDisplay = "Report 3: the percentage of the families in poverty\n\n" \
+                             + percentage(data_list, )
                 display.setText(strDisplay)
             elif buttons[4].in_area(clicked) and imported: # report4
                 # write out the report4
@@ -235,6 +234,7 @@ if __name__ == '__main__':
                 display.setText("Please import the file")
             if buttons[5].in_area(clicked): # exit
                 raise Exit("Exit button clicked") # get out from this loop
+            
     except Exit:
         win.close()
     finally:
