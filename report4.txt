@@ -1,0 +1,14 @@
+ID#: 3489	Member: 2	Income: 32,500	State: WA	Status: Non Poverty
+ID#: 3490	Member: 5	Income: 23,000	State: AK	Status: Poverty
+ID#: 3491	Member: 4	Income: 38,210	State: HI	Status: Non Poverty
+ID#: 3492	Member: 2	Income: 38,000	State: AK	Status: Non Poverty
+ID#: 3493	Member: 1	Income: 26,000	State: AZ	Status: Non Poverty
+ID#: 3494	Member: 3	Income: 16,400	State: HI	Status: Poverty
+ID#: 3495	Member: 4	Income: 25,000	State: CA	Status: Non Poverty
+ID#: 3496	Member: 4	Income: 20,500	State: FL	Status: Non Poverty
+ID#: 3497	Member: 2	Income: 18,000	State: HI	Status: Non Poverty
+ID#: 3498	Member: 3	Income: 19,700	State: WA	Status: Non Poverty
+ID#: 3499	Member: 8	Income: 30,000	State: VA	Status: Poverty
+ID#: 3500	Member: 5	Income: 23,400	State: AL	Status: Non Poverty
+ID#: 3501	Member: 2	Income: 19,700	State: VA	Status: Non Poverty
+ID#: 3502	Member: 3	Income: 13,000	State: PN	Status: Poverty
